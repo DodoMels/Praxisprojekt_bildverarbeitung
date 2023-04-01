@@ -21,8 +21,8 @@ Mat einlesen(string Dateiname)
     {
         cout << "Unable to read image" << endl;
     }
-    imshow("Original", img);
-    waitKey(0);
+    //imshow("Original", img);
+    //waitKey(0);
 
     return img;
 }
@@ -42,15 +42,17 @@ Mat detect_edges(Mat img)
 // function highpassfilter
 Mat highpassfilter(Mat img)
 {
+    
+
     Mat gray;
-    Mat dst;
-    Mat dst1; 
-    Mat dst2;
+    Mat dst;        // Hochpassfilter
+    Mat dst1;       // Cannyfilter
+    Mat dst2;       // Cannyfilter + Hochpass
     int ddepth = -1;                        //Datentyp Ergebnis-Bild = Datentyp Eingangs-Bild
     Point anchor = Point(-1, -1);   //relative Position des Filters zum berechneten Pixel.
     double delta = 0;                       //Grauwert-Offset (addiert zum Ergebnis-Bild)
     int borderType = BORDER_CONSTANT;   //Wie soll am Rand verfahren werden, CONST = überall konstanter Wert 0
-    Mat kernel; //Kernel-Matrix
+    Mat kernel; 
     Mat kernel1;
     Mat kernel2;
     Mat cdst;
@@ -58,14 +60,31 @@ Mat highpassfilter(Mat img)
 
     cvtColor(img, gray, COLOR_BGR2GRAY);
 
+    /*******************************************************************************************************************************/
+    //filtertypes
+    /*******************************************************************************************************************************/
+
     //Hochpassfilter
     kernel = (Mat_<float>(3, 3) << 0, 1, 0, 1, -4, 1, 0, 1, 0); // 1,1,1,1,-8,1,1,1,1 laplace mit diagonalen auch berücksichtigt 
     filter2D(gray, dst, ddepth, kernel, anchor, delta, borderType);
     imshow("Hochpassfilter", dst);
-    Canny(img, dst2, 50, 200, 3);
+
+    //Canny filter black white image
+    Canny(img, dst1, 50, 200, 3);
+    //imshow("just canny", dst1);
+
+    // canny filter + hochpass bad solution
+    Canny(dst, dst2, 50, 200, 3);
+    //imshow("hochpass+canny", dst2);
+
+    /*******************************************************************************************************************************/
+    /*******************************************************************************************************************************/
+
+
     // detect cicles
+    /*******************************************************************************************************************************/
     vector<Vec3f> circles;
-    HoughCircles(dst2, circles, HOUGH_GRADIENT, 1, dst2.rows/8, 100, 30, 5, 30);
+    HoughCircles(dst, circles, HOUGH_GRADIENT, 1, dst.rows / static_cast<double>(8), 100, 30, 5, 35);
     cout << "No. of circles : " << circles.size() << endl;
     // Draw the circles detected
     for (size_t i = 0; i < circles.size(); i++)
@@ -76,10 +95,10 @@ Mat highpassfilter(Mat img)
         circle(img, center, radius, Scalar(0, 0, 255), 3, 8, 0);// circle outline
         cout << "center : " << center << "\nradius : " << radius << endl;
     }
-    /************************************************************************************************/
+    /*******************************************************************************************************************************/
+
     // detect lines
-    Canny(img, dst1, 50, 200, 3);
-    imshow("canny", dst1);
+    /*******************************************************************************************************************************/
     cvtColor(dst1, cdst, COLOR_GRAY2BGR);
     cdstP = cdst.clone();
     vector<Vec2f> lines; // will hold the results of the detection
@@ -107,9 +126,8 @@ Mat highpassfilter(Mat img)
         line(cdstP, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 0, 255), 3, LINE_AA);
     }
     // Show results
-    //imshow("Source", src);
-    imshow("Detected Lines (in red) - Standard Hough Line Transform", cdst);
-    imshow("Detected Lines (in red) - Probabilistic Line Transform", cdstP);
+    //imshow("Detected Lines (in red) - Standard Hough Line Transform", cdst);
+    //imshow("Detected Lines (in red) - Probabilistic Line Transform", cdstP);
     namedWindow("Hough Circle Transform Demo", WINDOW_AUTOSIZE);
     imshow("Hough Circle Transform Demo", img);
 
@@ -125,7 +143,7 @@ int main(int argc, char* argv[])
     Mat img;
     Mat edges;
     Mat filter;
-    string search_directory = "../Praxisprojekt_bildverarbeitung/D_sub15.jpg";
+    string search_directory = "../Praxisprojekt_bildverarbeitung/Device_net.jpg";
 
     if (argc > 1)
     {
