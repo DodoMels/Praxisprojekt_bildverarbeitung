@@ -2,10 +2,8 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include "opencv2/imgcodecs.hpp"
-
 #include <opencv2/dnn.hpp>
 #include <opencv2/imgproc.hpp>
-
 #include <string>
 #include <array>
 #include <algorithm>
@@ -67,11 +65,11 @@ Mat highpassfilter(Mat img)
     //Hochpassfilter
     kernel = (Mat_<float>(3, 3) << 0, 1, 0, 1, -4, 1, 0, 1, 0); // 1,1,1,1,-8,1,1,1,1 laplace mit diagonalen auch berücksichtigt 
     filter2D(gray, dst, ddepth, kernel, anchor, delta, borderType);
-    imshow("Hochpassfilter", dst);
+    //imshow("Hochpassfilter", dst);
 
     //Canny filter black white image
     Canny(img, dst1, 50, 200, 3);
-    //imshow("just canny", dst1);
+    imshow("just canny", dst1);
 
     // canny filter + hochpass bad solution
     Canny(dst, dst2, 50, 200, 3);
@@ -84,7 +82,8 @@ Mat highpassfilter(Mat img)
     // detect cicles
     /*******************************************************************************************************************************/
     vector<Vec3f> circles;
-    HoughCircles(dst, circles, HOUGH_GRADIENT, 1, dst.rows / static_cast<double>(8), 100, 30, 5, 35);
+    HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, dst1.rows / static_cast<double>(8), 100, 36, 5, 40);
+    //HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, 50, 100, 30, 5, 35);
     cout << "No. of circles : " << circles.size() << endl;
     // Draw the circles detected
     for (size_t i = 0; i < circles.size(); i++)
@@ -95,6 +94,32 @@ Mat highpassfilter(Mat img)
         circle(img, center, radius, Scalar(0, 0, 255), 3, 8, 0);// circle outline
         cout << "center : " << center << "\nradius : " << radius << endl;
     }
+  
+        Point center1(cvRound(circles[3][0]), cvRound(circles[3][1]));
+        Point center2(cvRound(circles[2][0]), cvRound(circles[2][1]));
+        cout << "line1" << center1 << endl;
+        cout << "line2" << center2 << endl;
+        line(img, center1, center2, Scalar(0, 0, 255), 1, LINE_8, 0);
+        imshow("Hough Circle Transform Demo", img);
+
+        waitKey(0);
+    
+
+
+    /*
+center : [490, 410]
+radius : 31
+center : [380, 396]
+radius : 30
+center : [370, 638]
+radius : 23
+center : [364, 292]
+radius : 21
+center : [366, 186]
+radius : 19
+center : [372, 532]
+radius : 21
+    */
     /*******************************************************************************************************************************/
 
     // detect lines
@@ -143,7 +168,7 @@ int main(int argc, char* argv[])
     Mat img;
     Mat edges;
     Mat filter;
-    string search_directory = "../Praxisprojekt_bildverarbeitung/Device_net.jpg";
+    string search_directory = "../Praxisprojekt_bildverarbeitung/Profibus.jpg";
 
     if (argc > 1)
     {
