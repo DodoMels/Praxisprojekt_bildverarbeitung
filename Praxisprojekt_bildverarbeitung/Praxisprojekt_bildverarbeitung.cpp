@@ -78,12 +78,12 @@ Mat highpassfilter(Mat img)
     /*******************************************************************************************************************************/
     /*******************************************************************************************************************************/
 
-
     // detect cicles
     /*******************************************************************************************************************************/
     vector<Vec3f> circles;
-    HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, dst1.rows / static_cast<double>(8), 100, 36, 5, 40);
+    //HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, dst1.rows / static_cast<double>(8), 100, 36, 5, 40);
     //HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, 50, 100, 30, 5, 35);
+    HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, dst1.rows / static_cast<double>(20), 200, 36, 250, 400); // detect the biggest circle
     cout << "No. of circles : " << circles.size() << endl;
     // Draw the circles detected
     for (size_t i = 0; i < circles.size(); i++)
@@ -95,11 +95,11 @@ Mat highpassfilter(Mat img)
         cout << "center : " << center << "\nradius : " << radius << endl;
     }
   
-        Point center1(cvRound(circles[3][0]), cvRound(circles[3][1]));
+       /* Point center1(cvRound(circles[3][0]), cvRound(circles[3][1]));
         Point center2(cvRound(circles[2][0]), cvRound(circles[2][1]));
         cout << "line1" << center1 << endl;
         cout << "line2" << center2 << endl;
-        line(img, center1, center2, Scalar(0, 0, 255), 1, LINE_8, 0);
+        line(img, center1, center2, Scalar(0, 0, 255), 1, LINE_8, 0);*/
         imshow("Hough Circle Transform Demo", img);
 
         waitKey(0);
@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
     Mat img;
     Mat edges;
     Mat filter;
-    string search_directory = "../Praxisprojekt_bildverarbeitung/Profibus.jpg";
+    string search_directory = "../Praxisprojekt_bildverarbeitung/Device_net.jpg";
 
     if (argc > 1)
     {
