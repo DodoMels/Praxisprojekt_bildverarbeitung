@@ -7,7 +7,17 @@
 #include <string>
 #include <array>
 #include <algorithm>
+/*
+// TODO:
+find contours funktion testen 
+nach canny filter in x und y achse erstes weisses Pixel suchen um durchmesser bestimmen zukönnen
+danach grossen Kreis suchen 
+kleine kreise suche in abhängigkeit von grossem Durchmesser
+für D-Sub 15 linie durch schraube ziehen und verlängern und mitels Histogramm die beiden äusserenschrauben finden Plus
+die Kreise erkennen doppelt gemopelt 
 
+
+*/
 using namespace cv;
 using namespace std;
 
@@ -81,9 +91,11 @@ Mat highpassfilter(Mat img)
     // detect cicles
     /*******************************************************************************************************************************/
     vector<Vec3f> circles;
-    //HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, dst1.rows / static_cast<double>(8), 100, 36, 5, 40);
+   //HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, dst1.rows / static_cast<double>(8), 100, 36, 5, 40);
     //HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, 50, 100, 30, 5, 35);
-    HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, dst1.rows / static_cast<double>(20), 200, 36, 250, 400); // detect the biggest circle
+    //HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, dst1.rows / static_cast<double>(18), 200, 36, 250, 400); // detect the biggest circle
+     HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, dst1.rows / static_cast<double>(18), 200, 36, 350, 600); // detect the biggest circle
+
     cout << "No. of circles : " << circles.size() << endl;
     // Draw the circles detected
     for (size_t i = 0; i < circles.size(); i++)
@@ -95,7 +107,7 @@ Mat highpassfilter(Mat img)
         cout << "center : " << center << "\nradius : " << radius << endl;
     }
   
-       /* Point center1(cvRound(circles[3][0]), cvRound(circles[3][1]));
+        Point center1(cvRound(circles[3][0]), cvRound(circles[3][1]));
         Point center2(cvRound(circles[2][0]), cvRound(circles[2][1]));
         cout << "line1" << center1 << endl;
         cout << "line2" << center2 << endl;
@@ -104,22 +116,6 @@ Mat highpassfilter(Mat img)
 
         waitKey(0);
     
-
-
-    /*
-center : [490, 410]
-radius : 31
-center : [380, 396]
-radius : 30
-center : [370, 638]
-radius : 23
-center : [364, 292]
-radius : 21
-center : [366, 186]
-radius : 19
-center : [372, 532]
-radius : 21
-    */
     /*******************************************************************************************************************************/
 
     // detect lines
@@ -176,7 +172,7 @@ int main(int argc, char* argv[])
     }
     cout << "Press ENTER to continue." << endl;
     img = einlesen(search_directory);
-    //edges = detect_edges(img);
+    edges = detect_edges(img);
     filter = highpassfilter(img);
     
     return 0;
