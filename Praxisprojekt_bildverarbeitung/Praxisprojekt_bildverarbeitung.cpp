@@ -7,6 +7,7 @@
 #include <string>
 #include <array>
 #include <algorithm>
+#include <math.h>
 /*
 // TODO:
 find contours funktion testen 
@@ -40,9 +41,9 @@ Mat detect_edges(Mat img)
 {
     Mat edges;
     Canny(img, edges, 100, 200);
-    namedWindow("Kanten", WINDOW_NORMAL);
-    imshow("Kanten", edges);
-    waitKey(0);
+    //namedWindow("Kanten", WINDOW_NORMAL);
+    //imshow("Kanten", edges);
+    //waitKey(0);
 
     return edges;
 }
@@ -67,6 +68,7 @@ Mat highpassfilter(Mat img)
     Mat cdstP;
 
     cvtColor(img, gray, COLOR_BGR2GRAY);
+    //imshow("gray", gray);
 
     /*******************************************************************************************************************************/
     //filtertypes
@@ -79,7 +81,7 @@ Mat highpassfilter(Mat img)
 
     //Canny filter black white image
     Canny(img, dst1, 50, 200, 3);
-    imshow("just canny", dst1);
+    //imshow("just canny", dst1);
 
     // canny filter + hochpass bad solution
     Canny(dst, dst2, 50, 200, 3);
@@ -91,10 +93,9 @@ Mat highpassfilter(Mat img)
     // detect cicles
     /*******************************************************************************************************************************/
     vector<Vec3f> circles;
-   //HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, dst1.rows / static_cast<double>(8), 100, 36, 5, 40);
+   HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, dst1.rows / static_cast<double>(8), 100, 36, 5, 30);
     //HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, 50, 100, 30, 5, 35);
     //HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, dst1.rows / static_cast<double>(18), 200, 36, 250, 400); // detect the biggest circle
-     HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, dst1.rows / static_cast<double>(18), 200, 36, 350, 600); // detect the biggest circle
 
     cout << "No. of circles : " << circles.size() << endl;
     // Draw the circles detected
@@ -107,14 +108,21 @@ Mat highpassfilter(Mat img)
         cout << "center : " << center << "\nradius : " << radius << endl;
     }
   
-        Point center1(cvRound(circles[3][0]), cvRound(circles[3][1]));
-        Point center2(cvRound(circles[2][0]), cvRound(circles[2][1]));
+        
+        Point center1(cvRound(circles[0][0]), cvRound(circles[0][1]));
+        Point center2(cvRound(circles[1][0]), cvRound(circles[1][1]));
+        float distance = sqrt((center2.x - center1.x)^2 + (center2.y - center1.y)^2);
         cout << "line1" << center1 << endl;
         cout << "line2" << center2 << endl;
-        line(img, center1, center2, Scalar(0, 0, 255), 1, LINE_8, 0);*/
+        cout << "distance betwenn" << center1 << "&"<< center2 << "="<< distance << endl;
+        line(img, center1, center2, Scalar(0, 0, 255), 1, LINE_8, 0);
         imshow("Hough Circle Transform Demo", img);
-
         waitKey(0);
+
+        // kommentar für dodo
+        // innere schrauben Distanz gleich 15
+        // äussere schraube = 21
+        // start und enpixel mit hilfe von Roi +- 2 Pixel ausschneiden und danach hist berechnen 
     
     /*******************************************************************************************************************************/
 
