@@ -105,19 +105,39 @@ Mat highpassfilter(Mat img)
         int radius = cvRound(circles[i][2]);
         circle(img, center, 3, Scalar(0, 255, 0), -1, 8, 0);// circle center     
         circle(img, center, radius, Scalar(0, 0, 255), 3, 8, 0);// circle outline
+        for (size_t j = i + 1; j < circles.size(); j++)
+        {
+            Point center1(cvRound(circles[i][0]), cvRound(circles[i][1]));
+            Point center2(cvRound(circles[j][0]), cvRound(circles[j][1]));
+            float distance = sqrt((center2.x - center1.x) ^ 2 + (center2.y - center1.y) ^ 2);
+            if (distance > 20 && distance < 22)
+            {           
+            cout << "true" << center1 << center2 << distance << endl;
+                //if (distance == )
+            line(img, center1, center2, Scalar(0, 0, 255), 1, LINE_8, 0);
+             }
+            else
+            {
+                cout << "false" << center1 << center2 << distance << endl;
+            }
+        }
+        
+
         cout << "center : " << center << "\nradius : " << radius << endl;
     }
-  
-        
-        Point center1(cvRound(circles[0][0]), cvRound(circles[0][1]));
-        Point center2(cvRound(circles[1][0]), cvRound(circles[1][1]));
-        float distance = sqrt((center2.x - center1.x)^2 + (center2.y - center1.y)^2);
-        cout << "line1" << center1 << endl;
-        cout << "line2" << center2 << endl;
-        cout << "distance betwenn" << center1 << "&"<< center2 << "="<< distance << endl;
-        line(img, center1, center2, Scalar(0, 0, 255), 1, LINE_8, 0);
-        imshow("Hough Circle Transform Demo", img);
-        waitKey(0);
+    imshow("Hough Circle Transform Demo", img);
+    waitKey(0);
+       
+    /*Point center1(cvRound(circles[0][0]), cvRound(circles[0][1]));
+    Point center2(cvRound(circles[1][0]), cvRound(circles[1][1]));
+    float distance = sqrt((center2.x - center1.x)^2 + (center2.y - center1.y)^2);
+    cout << "line1" << center1 << endl;
+    cout << "line2" << center2 << endl;
+    cout << "distance betwenn" << center1 << "&"<< center2 << "="<< distance << endl;
+    line(img, center1, center2, Scalar(0, 0, 255), 1, LINE_8, 0);
+    imshow("Hough Circle Transform Demo", img);
+    waitKey(0);
+    */
 
         // kommentar für dodo
         // innere schrauben Distanz gleich 15
