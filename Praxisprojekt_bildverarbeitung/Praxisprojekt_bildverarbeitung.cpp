@@ -8,6 +8,7 @@
 #include <array>
 #include <algorithm>
 #include <math.h>
+#include <stdio.h>
 /*
 // TODO:
 find contours funktion testen 
@@ -21,6 +22,7 @@ die Kreise erkennen doppelt gemopelt
 */
 using namespace cv;
 using namespace std;
+
 
 // function read image
 Mat einlesen(string Dateiname)
@@ -109,11 +111,10 @@ Mat highpassfilter(Mat img)
         {
             Point center1(cvRound(circles[i][0]), cvRound(circles[i][1]));
             Point center2(cvRound(circles[j][0]), cvRound(circles[j][1]));
-            float distance = sqrt((center2.x - center1.x) ^ 2 + (center2.y - center1.y) ^ 2);
+            float distance = sqrt(abs(center2.x - center1.x)^2 + abs(center2.y - center1.y)^2);
             if (distance > 20 && distance < 22)
             {           
             cout << "true" << center1 << center2 << distance << endl;
-                //if (distance == )
             line(img, center1, center2, Scalar(0, 0, 255), 1, LINE_8, 0);
              }
             else
@@ -127,6 +128,47 @@ Mat highpassfilter(Mat img)
     }
     imshow("Hough Circle Transform Demo", img);
     waitKey(0);
+    /***********************************************************************************************************/
+    //Test
+    Point2f srcTri[3];
+    Point2f dstTri[3];
+    string search_directory = "../Praxisprojekt_bildverarbeitung/Profibus.jpg";
+    Mat rot_mat(2, 3, CV_32FC1);
+    Mat warp_mat(2, 3, CV_32FC1);
+    Mat src, warp_dst, warp_rotate_dst;
+    src = einlesen(search_directory);
+    warp_dst = Mat::zeros(src.rows, src.cols, src.type());
+    srcTri[0] = Point2f(0, 0);
+    srcTri[1] = Point2f(src.cols - 1, 0);
+    srcTri[2] = Point2f(0, src.rows - 1);
+
+    dstTri[0] = Point2f(src.cols * 0.0, src.rows * 0.33);
+    dstTri[1] = Point2f(src.cols * 0.85, src.rows * 0.25);
+    dstTri[2] = Point2f(src.cols * 0.15, src.rows * 0.7);
+    warp_mat = getAffineTransform(srcTri, dstTri);
+    warpAffine(src, warp_dst, warp_mat, warp_dst.size());
+    Point center = Point(warp_dst.cols / 2, warp_dst.rows / 2);
+    double angle = -50.0;
+    double scale = 0.6;
+    rot_mat = getRotationMatrix2D(center, angle, scale);
+
+    /// Rotate the warped image
+    warpAffine(warp_dst, warp_rotate_dst, rot_mat, warp_dst.size());
+
+    /// Show what you got
+    
+    imshow("source_window", src);
+
+ 
+    imshow("warp_window", warp_dst);
+
+   
+    imshow("warp_rotate_window", warp_rotate_dst);
+
+    /// Wait until user exits the program
+    waitKey(0);
+
+    /*******************************************************************************************************************************/
        
     /*Point center1(cvRound(circles[0][0]), cvRound(circles[0][1]));
     Point center2(cvRound(circles[1][0]), cvRound(circles[1][1]));
@@ -192,7 +234,7 @@ int main(int argc, char* argv[])
     Mat img;
     Mat edges;
     Mat filter;
-    string search_directory = "../Praxisprojekt_bildverarbeitung/Device_net.jpg";
+    string search_directory = "../Praxisprojekt_bildverarbeitung/Profibus.jpg";
 
     if (argc > 1)
     {
