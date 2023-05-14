@@ -145,7 +145,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Praxisprojekt_bildverarbeitung.cpp" />
+    <ClCompile Include="circle.cpp" />
+    <ClCompile Include="histogramm.cpp" />
+    <ClCompile Include="image.cpp" />
+    <ClCompile Include="imageprocessing.cpp" />
+    <ClCompile Include="line.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="scalepixel.cpp" />
+    <ClCompile Include="sensor.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="circle.h" />
+    <ClInclude Include="histogramm.h" />
+    <ClInclude Include="image.h" />
+    <ClInclude Include="imageprocessing.h" />
+    <ClInclude Include="line.h" />
+    <ClInclude Include="scalepixel.h" />
+    <ClInclude Include="sensor.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Kanten_test.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

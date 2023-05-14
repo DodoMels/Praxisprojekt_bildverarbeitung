@@ -7,9 +7,10 @@ Image::~Image() {
 }
 
 void Image::editImage(std::string path) {
-    if (path == "Webcam") {
+    if (path == "WEBCAM") {
         this->captureImageFromWebcam(0);
     }
+    this->importImage(path);
     this->convertImageToGrayscaleImage();
     this->sharpenImageGray();
     this->cannyFilter();
@@ -17,7 +18,8 @@ void Image::editImage(std::string path) {
 
 void Image::captureImageFromWebcam(int numberWebcam) {
     // Open connection to the webcam
-    m_captureWebcam.open(numberWebcam, cv::CAP_V4L);
+    //m_captureWebcam.open(numberWebcam, cv::CAP_V4L);
+    m_captureWebcam.open(numberWebcam, cv::CAP_ANY);
 
     // Check if the camera is open
     if (!m_captureWebcam.isOpened()) {
@@ -37,6 +39,8 @@ void Image::captureImageFromWebcam(int numberWebcam) {
 
 void Image::importImage(std::string path) {
     m_imageOriginal = cv::imread(path, cv::IMREAD_ANYCOLOR);
+    cv::imshow("dhf", m_imageOriginal);
+    cv::waitKey(0);
     m_imageOriginalSize = m_imageOriginal.size();
 }
 

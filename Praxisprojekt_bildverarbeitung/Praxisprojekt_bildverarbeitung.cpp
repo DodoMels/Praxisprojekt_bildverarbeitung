@@ -22,6 +22,7 @@ die Kreise erkennen doppelt gemopelt
 */
 using namespace cv;
 using namespace std;
+std::vector<cv::Vec3b> values;
 
 
 // function read image
@@ -54,7 +55,7 @@ Mat detect_edges(Mat img)
 Mat highpassfilter(Mat img)
 {
     
-
+    Mat bild = img;
     Mat gray;
     Mat dst;        // Hochpassfilter
     Mat dst1;       // Cannyfilter
@@ -83,7 +84,7 @@ Mat highpassfilter(Mat img)
 
     //Canny filter black white image
     Canny(img, dst1, 50, 200, 3);
-    //imshow("just canny", dst1);
+    imshow("just canny", dst1);
 
     // canny filter + hochpass bad solution
     Canny(dst, dst2, 50, 200, 3);
@@ -113,10 +114,28 @@ Mat highpassfilter(Mat img)
             Point center2(cvRound(circles[j][0]), cvRound(circles[j][1]));
             float distance = sqrt(abs(center2.x - center1.x)^2 + abs(center2.y - center1.y)^2);
             if (distance > 20 && distance < 22)
-            {           
-            cout << "true" << center1 << center2 << distance << endl;
-            line(img, center1, center2, Scalar(0, 0, 255), 1, LINE_8, 0);
-             }
+            {
+                cout << "true" << center1 << center2 << distance << endl;
+                line(img, center1, center2, Scalar(0, 0, 255), 1, LINE_8, 0);
+                int intensity = (int)img.at<uchar>(center1.x, center2.y);
+                cout << "inten"<<intensity << endl;
+                
+                LineIterator it(img, center1, center2, 8);
+                for (int i = 0; i < it.count; i++, ++it)
+                {
+                    int intensity[100];
+                   Point pt = it.pos();
+                   int intens = (int)img.at<uchar>(pt.x, pt.y);
+                   intensity[i] = intens;
+                   cout << intensity[i] << "int" << endl;
+                }
+                
+
+                //values.push_back((Vec3b)*it);
+
+
+                
+            }
             else
             {
                 cout << "false" << center1 << center2 << distance << endl;
@@ -130,6 +149,7 @@ Mat highpassfilter(Mat img)
     waitKey(0);
     /***********************************************************************************************************/
     //Test
+    /*
     Point2f srcTri[3];
     Point2f dstTri[3];
     string search_directory = "../Praxisprojekt_bildverarbeitung/Profibus.jpg";
@@ -167,7 +187,7 @@ Mat highpassfilter(Mat img)
 
     /// Wait until user exits the program
     waitKey(0);
-
+    */
     /*******************************************************************************************************************************/
        
     /*Point center1(cvRound(circles[0][0]), cvRound(circles[0][1]));
@@ -232,6 +252,7 @@ Mat highpassfilter(Mat img)
 int main(int argc, char* argv[])
 {
     Mat img;
+    Mat bild;
     Mat edges;
     Mat filter;
     string search_directory = "../Praxisprojekt_bildverarbeitung/Profibus.jpg";
@@ -242,6 +263,7 @@ int main(int argc, char* argv[])
     }
     cout << "Press ENTER to continue." << endl;
     img = einlesen(search_directory);
+    bild = einlesen(search_directory);
     edges = detect_edges(img);
     filter = highpassfilter(img);
     
