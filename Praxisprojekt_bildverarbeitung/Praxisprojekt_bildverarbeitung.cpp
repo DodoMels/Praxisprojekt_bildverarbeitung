@@ -255,7 +255,7 @@ int main(int argc, char* argv[])
     Mat bild;
     Mat edges;
     Mat filter;
-    string search_directory = "../Praxisprojekt_bildverarbeitung/Profibus.jpg";
+    string search_directory = "../Praxisprojekt_bildverarbeitung/Device_net_mit_abdeckung.jpg";
 
     if (argc > 1)
     {

@@ -12,7 +12,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <algorithm> 
-
+#include <vector>
 
 
 
@@ -28,17 +28,24 @@ Histogramm::~Histogramm() {
 void Histogramm::calchist() {
 
 
-	img = cv::imread("../Praxisprojekt_bildverarbeitung/Profibus.jpg", 0);
+	img = cv::imread("../Praxisprojekt_bildverarbeitung/Device_net_mit_abdeckung.jpg", 0);
 
 	// Vektor der funktion bekommt
 	std::vector<int> innerscrew(4);
-	innerscrew[0] = 378;
+	innerscrew[0] = 466;
+	innerscrew[1] = 402;
+	innerscrew[2] = 228;
+	innerscrew[3] = 416;
+
+	/*	innerscrew[0] = 378;
 	innerscrew[1] = 260;
 	innerscrew[2] = 380;
-	innerscrew[3] = 492;
+	innerscrew[3] = 492;*/
 	// Variabeln
 	std::vector<int> vec_positiv(2);
 	std::vector<int> vec_negativ(2);
+	int counter_back = 0;
+	int counter_front = 0;
 	int d = 7;
 	bool screw{};
 	cv::Point test;
@@ -58,28 +65,72 @@ void Histogramm::calchist() {
 	down.x = vec_negativ[0];
 	down.y = vec_negativ[1];
 
-
-
-
-
-	/*for (int i = 0; i < it.count; i++, ++it)
-	{
-		int intensity[3000];
-		cv::Point pt = it.pos();
-		int intens = (int)img.at<uchar>(pt.x, pt.y);
-		intensity[i] = intens;
-		std::cout << intensity[i] << "int" << std::endl;
-	}
-	*/
 	cv::line(img, center1, center2, cv::Scalar(0, 0, 255), 1, cv::LINE_8, 0);
 	cv::circle(img, up, 3, cv::Scalar(0, 255, 0), -1, 8, 0);
 	cv::circle(img, down, 5, cv::Scalar(0, 255, 0), -1, 8, 0);
-	cv::imshow("img", img);
-	cv::waitKey(0);
+	//cv::imshow("img", img);
+	//cv::waitKey(0);
 	std::vector<float> profile = getLine();
-	check_screw(screw, profile);
-	//drawProfile(profile);
+	drawProfile(profile);
 
+	int p_Len = (int)profile.size();
+	int i = 0;
+	float total = 0;
+
+	for (size_t i = 0; i <p_Len; i++)
+	{
+		total += profile[i];
+	}
+	
+	float median = (total / profile.size())+20;
+
+	for (size_t i = 0; i < 20; i++)
+	{
+		if (profile[i] > median)
+		{
+			counter_front += 1;
+			std::cout << "True front" << profile[i] << std::endl;
+		}
+		else
+		{
+			std::cout << "False front" << profile[i] << std::endl;
+		}
+	}
+
+	for (size_t i = profile.size()-20; i < profile.size(); i++)
+	{
+		if (profile[i] > median)
+		{
+			counter_back += 1;
+			std::cout << "True end" << profile[i] << std::endl;
+		}
+		else
+		{
+			std::cout << "false end" << profile[i] << std::endl;
+		}
+	}
+	std::cout << "counter back" << counter_back << "counter_front" << counter_front << std::endl;
+	std::cout << "median"<<median << std::endl;
+	if (counter_back > 10 && counter_front > 10)
+	{
+		cv::Point text_position(80, 80);//Declaring the text position//
+		int font_size = 1;//Declaring the font size//
+		cv::Scalar font_Color(0, 0, 0);//Declaring the color of the font//
+		int font_weight = 2;//Declaring the font weight//
+		cv::putText(img, "TRUE hat eine schraube", text_position, cv::FONT_HERSHEY_COMPLEX, font_size, font_Color, font_weight);//Putting the text in the matrix//
+		cv::imshow("Image", img);//Showing the image//
+		cv::waitKey(0);//Wait for Keystroke//
+	}
+	else
+	{
+		cv::Point text_position(80, 80);//Declaring the text position//
+		int font_size = 1;//Declaring the font size//
+		cv::Scalar font_Color(0, 0, 0);//Declaring the color of the font//
+		int font_weight = 2;//Declaring the font weight//
+		cv::putText(img, "FALSE hat keine schraube", text_position, cv::FONT_HERSHEY_COMPLEX, font_size, font_Color, font_weight);//Putting the text in the matrix//
+		cv::imshow("Image", img);//Showing the image//
+		cv::waitKey(0);//Wait for Keystroke//
+	}
 	
 }
 
@@ -161,7 +212,7 @@ void Histogramm::drawProfile(std::vector<float> profile)
 		cv::line(profileImage, cv::Point((int)(bin_w * (i - 1)), p_h - cvRound(profile[cvRound(i - 1)] / ratio)),
 			cv::Point((int)(bin_w * i), p_h - cvRound(profile[cvRound(i)] / ratio)),
 			cv::Scalar(255, 0, 0), 2, 8, 0);
-		int intensity[3000];
+		
 	}
 	cv::imshow("Profile", profileImage);
 }
@@ -182,10 +233,7 @@ void Histogramm::check_screw(bool, std::vector<float> lines)
 	}
 	float median = total / lines.size();
 	std::cout << median << std::endl;
-	for (i = 1; i < lines.size(); i++);
-	{
 
-	}
 
 
 }

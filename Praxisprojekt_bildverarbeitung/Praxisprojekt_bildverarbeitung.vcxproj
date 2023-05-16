@@ -164,6 +164,7 @@
     <ClInclude Include="sensor.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Device_net_mit_abdeckung.jpg" />
     <Image Include="Kanten_test.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
