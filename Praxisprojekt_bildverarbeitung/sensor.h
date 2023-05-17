@@ -1,19 +1,17 @@
 #ifndef SENSOR_H
 #define SENSOR_H
 
-
-#include "circle.h"
-#include "line.h"
-
+#include <circle.h>
+#include <line.h>
 
 class Sensor
 {
 public:
     // Constructor
-    //explicit Sensor();
+    explicit Sensor();
 
     // Deconstructor
-    //virtual ~Sensor();
+    virtual ~Sensor();
 };
 
 #endif // SENSOR_H

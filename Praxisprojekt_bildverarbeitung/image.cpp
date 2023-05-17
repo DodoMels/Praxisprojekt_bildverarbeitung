@@ -1,47 +1,49 @@
 #include "image.h"
 
 Image::Image() {
+    m_flagScaleImageShow = false;
 }
 
 Image::~Image() {
 }
 
+void Image::setCaptureWebcam(cv::VideoCapture& captureWebcam) {
+    m_captureWebcam = &captureWebcam;
+}
+
 void Image::editImage(std::string path) {
-    if (path == "WEBCAM") {
-        this->captureImageFromWebcam(0);
+    if (path == "Webcam") {
+        this->captureImageFromWebcam();
     }
-    this->importImage(path);
+    else {
+        importImage(path);
+        m_flagScaleImageShow = true;
+    }
     this->convertImageToGrayscaleImage();
     this->sharpenImageGray();
     this->cannyFilter();
 }
 
-void Image::captureImageFromWebcam(int numberWebcam) {
-    // Open connection to the webcam
-    //m_captureWebcam.open(numberWebcam, cv::CAP_V4L);
-    m_captureWebcam.open(numberWebcam, cv::CAP_ANY);
+void Image::captureImageFromWebcam() {
 
     // Check if the camera is open
-    if (!m_captureWebcam.isOpened()) {
+    if (!m_captureWebcam->isOpened()) {
         throw std::runtime_error("Could not open the webcam 0!");
     }
+    *m_captureWebcam >> m_imageOriginal;
 
-    // Jump the first 25 frames to give the webcam time to focus
-    for (int i = 0; i < 25; i++) {
-        m_captureWebcam >> m_imageOriginal;
-        cv::waitKey(35);
-    }
-
-    // Print the size of the image
+    // Get the size of the image
     m_imageOriginalSize = m_imageOriginal.size();
-    std::cout << "Size of the image: Width = " << m_imageOriginalSize.width << ", Height = " << m_imageOriginalSize.height << std::endl;
+    //std::cout << "Size of the image: Width = " << m_imageOriginalSize.width << ", Height = " << m_imageOriginalSize.height << std::endl;
 }
 
 void Image::importImage(std::string path) {
     m_imageOriginal = cv::imread(path, cv::IMREAD_ANYCOLOR);
-    cv::imshow("dhf", m_imageOriginal);
-    cv::waitKey(0);
     m_imageOriginalSize = m_imageOriginal.size();
+
+    // Print the size of the image
+    m_imageOriginalSize = m_imageOriginal.size();
+    std::cout << "Size of the image: Width = " << m_imageOriginalSize.width << ", Height = " << m_imageOriginalSize.height << std::endl;
 }
 
 void Image::convertImageToGrayscaleImage() {
@@ -83,9 +85,41 @@ cv::Mat Image::getCannyFilterImage() {
 }
 
 void Image::showImage(std::string title, cv::Mat image) {
-    //int downWidth = 600;
-    //int downHeight = 800;
-    //cv::Mat resizedDown;
-    //cv::resize(image, resizedDown, cv::Size(downWidth, downHeight), cv::INTER_LINEAR);
-    cv::imshow(title, image);
+    if (m_flagScaleImageShow) {
+        //int downWidth = 600;
+        //int downHeight = 800;
+        //cv::Mat resizedDown;
+        //cv::resize(image, resizedDown, cv::Size(downWidth, downHeight), cv::INTER_LINEAR);
+        cv::imshow(title, image);
+    }
+    else {
+        cv::imshow(title, image);
+    }
+}
+
+void Image::showCircles(std::vector<Circle> circles) {
+    for(size_t i = 0; i < circles.size(); i++ )
+    {
+        std::vector<int> circleExtracted = circles.at(i).getCenter();
+        cv::Point center = cv::Point(circleExtracted[0], circleExtracted[1]);
+
+        // circle center
+        circle( this->getOriginalImage(), center, 1, cv::Scalar(0,100,100), 2, cv::LINE_AA);
+        // circle outline
+        int radius = circles.at(i).getRadius();
+        circle( this->getOriginalImage(), center, radius, cv::Scalar(255,0,255), 1, cv::LINE_AA);
+    }
+
+    //this->showImage("Picture", this->getOriginalImage());
+}
+
+void Image::showCircles(Circle circles) {
+    std::vector<int> circleExtracted = circles.getCenter();
+    cv::Point center = cv::Point(circleExtracted[0], circleExtracted[1]);
+    // circle center
+    circle( this->getOriginalImage(), center, 1, cv::Scalar(0,100,100), 2, cv::LINE_AA);
+    // circle outline
+    int radius = circles.getRadius();
+    circle( this->getOriginalImage(), center, radius, cv::Scalar(255,0,255), 1, cv::LINE_AA);
+    //this->showImage("Picture", this->getOriginalImage());
 }

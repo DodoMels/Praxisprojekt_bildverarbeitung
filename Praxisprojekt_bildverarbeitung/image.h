@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "circle.h"
 
 class Image
 {
@@ -16,11 +17,13 @@ public:
     // Destructor
     virtual ~Image();
 
+    void setCaptureWebcam(cv::VideoCapture& captureWebcam);
+
     // Process image
     void editImage(std::string path);
 
     // Get image from a webcam
-    void captureImageFromWebcam(int numberWebcam);
+    void captureImageFromWebcam();
 
     // Import an image
     void importImage(std::string path);
@@ -52,8 +55,13 @@ public:
     // Show the image
     void showImage(std::string title, cv::Mat image);
 
+    void showCircles(std::vector<Circle> circles);
+    void showCircles(Circle circle);
+
 private:
-    cv::VideoCapture m_captureWebcam;
+    bool m_flagScaleImageShow;
+
+    cv::VideoCapture* m_captureWebcam;
 
     cv::Mat m_imageOriginal;
     cv::Size m_imageOriginalSize;

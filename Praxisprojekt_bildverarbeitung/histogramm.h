@@ -6,7 +6,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "histogramm.h"
 #include "circle.h"
 #include <iostream>
 #include <opencv2/opencv.hpp>
@@ -19,6 +18,7 @@
 #include <algorithm>
 #include <math.h>
 #include <stdio.h>
+#include "image.h"
 
 
 class Histogramm
@@ -31,7 +31,7 @@ public:
     virtual ~Histogramm();
 
 
-    void calchist();
+    bool calchist(Image image, std::vector<Circle> circles, int distance);
     std::vector<float> getLine();
     float getGraySubpix(const cv::Mat& img, float x_in, float y_in);
     cv::Vec3b getColorSubpix(const cv::Mat& img, cv::Point2f pt);
@@ -42,9 +42,8 @@ public:
     cv::Point up;
     cv::Point down;
 
-
-
 private:
+    bool m_flagFound;
 
 
 };
