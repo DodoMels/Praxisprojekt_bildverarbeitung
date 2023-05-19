@@ -43,7 +43,8 @@ void ImageHandler::findDSubScrews(std::string path) {
 
     m_scalePixelAverage.calculateMmInPixels(m_outerCircle.getRadius());
     //m_pImageAverage = &m_imageAverage;
-    m_flagFound = m_histogramAverage.calchist(m_imageAverage, m_dSubScrews, m_scalePixelAverage.getDistanceLidInPixel());
+
+    m_flagFound = m_histogramAverage.calchist(m_imageAverage, m_dSubScrews, m_scalePixelAverage.getDistanceLidInPixel(),m_scalePixelAverage.getDistanceConectorInPixel());
 
     /*for (size_t i = 0; i < m_imageProcessorPool.size(); i++) {
         ImageProcessor& imageProzessor = m_imageProcessorPool[i];
@@ -198,7 +199,7 @@ void ImageHandler::averageDSubScrews() {
     }
     radiusInt = radiusInt / 2;
     Circle first;
-    Circle second;
+    Circle second; 
     first.setCenter((sumXFirst / counter), (sumYFirst / counter));
     first.setRadius((radiusInt / counter));
     second.setCenter((sumXSecond / counter), (sumYSecond / counter));

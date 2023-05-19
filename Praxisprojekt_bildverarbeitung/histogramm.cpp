@@ -25,7 +25,7 @@ Histogramm::~Histogramm() {
 
 
 
-bool Histogramm::calchist(Image image, std::vector<Circle> circles, int distance) {
+bool Histogramm::calchist(Image image, std::vector<Circle> circles, int distanceBigScrews, int distanceConector) {
 
 
     //img = cv::imread("../Praxisprojekt_bildverarbeitung/Profibus.jpg", 0);
@@ -34,14 +34,17 @@ bool Histogramm::calchist(Image image, std::vector<Circle> circles, int distance
     std::vector<int> first = circles.at(0).getCenter();
     std::vector<int> second = circles.at(1).getCenter();
     // Variabeln
+    float vBetragfirst = (float) sqrt((first.at(0) * first.at(0)) + (first.at(1)*first.at(1)));
+    float vBetragsecond = (float)sqrt((second.at(0) * second.at(0)) + (second.at(1) * second.at(1)));
     std::vector<int> vec_positiv(2);
     std::vector<int> vec_negativ(2);
     int counter_back = 0;
     int counter_front = 0;
-    int d = distance;
+    int findrightconector = 0;
+    int d = distanceBigScrews;
     bool screw{};
     cv::Point test;
-    cv::Point center1(first.at(0), second.at(1));
+    cv::Point center1(first.at(0), first.at(1));
     cv::Point center2(second.at(0), second.at(1));
     //cv::LineIterator it(img, center1, center2, 8);
     // Linie in beide richtungen verl�ngern
@@ -56,14 +59,89 @@ bool Histogramm::calchist(Image image, std::vector<Circle> circles, int distance
     down.x = vec_negativ[0];
     down.y = vec_negativ[1];
 
+    //Vektor parallel verschiebn
+    std::vector<int> vec_conector_positon_positiv(2);
+    std::vector<int> vec_conector_positon_negativ(2);
+    std::vector<int> vec_parallel_positiv(2);
+    std::vector<int> vec_parallel_negativ(2);
+
+    //vec_conector_positon_positiv[0] = distanceConector * (first.at(0) / vBetragfirst);
+    //vec_conector_positon_positiv[1] = distanceConector * (first.at(1) / vBetragfirst);
+    //vec_conector_positon_negativ[0] = distanceConector * (second.at(0) / vBetragsecond);
+    //vec_conector_positon_negativ[1] = distanceConector * (second.at(1) / vBetragsecond);
+
+    /*
+    //for (size_t i = 0; i < vec_conector_positon_negativ.size(); i++)
+    {
+        vec_parallel_positiv[i] = vec_conector_positon_positiv[i] + first.at(i);
+        vec_parallel_negativ[i] = vec_conector_positon_negativ[i] + second.at(i);
+    }
+    */
+
+    std::vector<float> newPoints = getNewPoints(first, second,distanceConector);
+    parallel_up.x = newPoints.at(0);
+    parallel_up.y = newPoints.at(1);
+    parallel_down.x = newPoints.at(2);
+    parallel_down.y = newPoints.at(3);
+
+    cv::circle(img, parallel_up, 2, cv::Scalar(0, 255, 0), -1, 8, 0);
+    cv::circle(img, parallel_down, 2, cv::Scalar(0, 255, 0), -1, 8, 0);
     cv::line(img, center1, center2, cv::Scalar(0, 0, 255), 1, cv::LINE_8, 0);
     cv::circle(img, up, 10, cv::Scalar(0, 255, 0), -1, 8, 0);
     cv::circle(img, down, 10, cv::Scalar(0, 255, 0), -1, 8, 0);
-    //cv::imshow("img", img);
-    //cv::waitKey(0);
-    std::vector<float> profile = getLine();
-    drawProfile(profile);
 
+    std::vector<float> conector = getLine(parallel_up, parallel_down);
+    drawProfile(conector, "conector");
+    std::vector<float> profile = getLine(up,down);
+    drawProfile(profile,"Screws");
+
+
+    if (int distance = getMaxPeak(conector) < 30)
+    {
+        std::vector<float> newPoints = getNewPointsNegativ(first, second, distanceConector);
+        parallel_up.x = newPoints.at(0);
+        parallel_up.y = newPoints.at(1);
+        parallel_down.x = newPoints.at(2);
+        parallel_down.y = newPoints.at(3);
+        cv::circle(img, parallel_up, 2, cv::Scalar(0, 255, 0), -1, 8, 0);
+        cv::circle(img, parallel_down, 2, cv::Scalar(0, 255, 0), -1, 8, 0);
+        std::vector<float> conector = getLine(parallel_up, parallel_down);
+        drawProfile(conector, "conector");
+
+        if (int distance =getMaxPeak(conector) < 30)
+        {
+            cv::Point text_position(40, 40);//Declaring the text position//
+            int font_size = 1;//Declaring the font size//
+            cv::Scalar font_Color(0, 0, 0);//Declaring the color of the font//
+            int font_weight = 2;//Declaring the font weight//
+            cv::putText(img, "DSUB 15", text_position, cv::FONT_HERSHEY_COMPLEX, font_size, font_Color, font_weight);//Putting the text in the matrix//
+            cv::imshow("Image", img);//Showing the image//
+            //cv::waitKey(0);//Wait for Keystroke//
+        }
+        else 
+        {
+            for (size_t i = 0; i < conector.size(); i++)
+            {
+                if (conector.at(i) < 40)
+                {
+                    findrightconector += 1;
+                }
+                if (findrightconector > 35  && findrightconector < 50)
+                {
+                    cv::Point text_position(40, 40);//Declaring the text position//
+                    int font_size = 1;//Declaring the font size//
+                    cv::Scalar font_Color(0, 0, 0);//Declaring the color of the font//
+                    int font_weight = 2;//Declaring the font weight//
+                    cv::putText(img, "Devicenet", text_position, cv::FONT_HERSHEY_COMPLEX, font_size, font_Color, font_weight);//Putting the text in the matrix//
+                    cv::imshow("Image", img);//Showing the image//
+                    //cv::waitKey(0);//Wait for Keystroke//
+                }
+            }
+
+
+        }
+    }
+    
     int p_Len = (int)profile.size();
     int i = 0;
     float total = 0;
@@ -110,7 +188,7 @@ bool Histogramm::calchist(Image image, std::vector<Circle> circles, int distance
         int font_weight = 2;//Declaring the font weight//
         cv::putText(img, "TRUE hat eine schraube", text_position, cv::FONT_HERSHEY_COMPLEX, font_size, font_Color, font_weight);//Putting the text in the matrix//
         cv::imshow("Image", img);//Showing the image//
-        cv::waitKey(0);//Wait for Keystroke//
+        //cv::waitKey(0);//Wait for Keystroke//
     }
     else
     {
@@ -120,23 +198,82 @@ bool Histogramm::calchist(Image image, std::vector<Circle> circles, int distance
         int font_weight = 2;//Declaring the font weight//
         cv::putText(img, "FALSE hat keine schraube", text_position, cv::FONT_HERSHEY_COMPLEX, font_size, font_Color, font_weight);//Putting the text in the matrix//
         cv::imshow("Image", img);//Showing the image//
-        cv::waitKey(0);//Wait for Keystroke//
+        //cv::waitKey(0);//Wait for Keystroke//
     }
     return m_flagFound;
 }
 
-std::vector<float> Histogramm::getLine()
+std::vector<float> Histogramm::getNewPoints(std::vector<int> firstCircle, std::vector<int> secondCircle,int distanceConectorToDsub)
+{
+    float slope = (secondCircle.at(1) - firstCircle.at(1)) / (secondCircle.at(0) - firstCircle.at(0));
+    float perpendicular = -1 / slope;
+
+    float x_new = firstCircle.at(0) + (distanceConectorToDsub / sqrt(1 + perpendicular * perpendicular));
+    float y_new = firstCircle.at(1) + (distanceConectorToDsub * perpendicular / sqrt(1 + perpendicular * perpendicular));
+    float x_newSecond = secondCircle.at(0) + (distanceConectorToDsub / sqrt(1 + perpendicular * perpendicular));
+    float y_newSecond = secondCircle.at(1) + (distanceConectorToDsub * perpendicular / sqrt(1 + perpendicular * perpendicular));
+    std::vector<float> newpoints{ x_new,y_new,x_newSecond,y_newSecond };
+    
+    return newpoints;
+}
+std::vector<float> Histogramm::getNewPointsNegativ(std::vector<int> firstCircle, std::vector<int> secondCircle, int distanceConectorToDsub)
+{
+    float slope = (secondCircle.at(1) - firstCircle.at(1)) / (secondCircle.at(0) - firstCircle.at(0));
+    float perpendicular = -1 / slope;
+
+    float x_new = firstCircle.at(0) - (distanceConectorToDsub / sqrt(1 + perpendicular * perpendicular));
+    float y_new = firstCircle.at(1) - (distanceConectorToDsub * perpendicular / sqrt(1 + perpendicular * perpendicular));
+    float x_newSecond = secondCircle.at(0) - (distanceConectorToDsub / sqrt(1 + perpendicular * perpendicular));
+    float y_newSecond = secondCircle.at(1) - (distanceConectorToDsub * perpendicular / sqrt(1 + perpendicular * perpendicular));
+    std::vector<float> newpoints{ x_new,y_new,x_newSecond,y_newSecond };
+
+    return newpoints;
+}
+
+int Histogramm::getMaxPeak(std::vector<float> lines)
+{
+    int midle = lines.size() / 2;
+    int min = 100;
+    int max = 0;
+
+    for (size_t i = midle - 10; i < midle + 10; i++)
+    {
+        if (min > lines.at(i))
+        {
+            min = lines.at(i);
+        }
+        if (max < lines.at(i))
+        {
+            max = lines.at(i);
+        }
+    }
+    int maxDistance = max - min;
+
+    return maxDistance;
+}
+
+std::vector<float> Histogramm::getLine(cv::Point circle1, cv::Point circle2)
 {
     std::vector<float> lineProfile;
-    float len = (float)sqrt(pow((float)up.x - (float)down.x, 2.0) + pow((float)up.y - (float)down.y, 2.0));
-    float mx = (up.x - down.x) / len;
-    float my = (up.y - down.y) / len;
+    float len = (float)sqrt(pow((float)circle1.x - (float)circle2.x, 2.0) + pow((float)circle1.y - (float)circle2.y, 2.0));
+    float mx = (circle1.x - circle2.x) / len;
+    float my = (circle1.y - circle2.y) / len;
     std::cout << mx << "; " << my << "(angle=" << 180.f * atan2(my, mx) / 3.141f << ")" << std::endl;
     for (int k = 0; k < len; k++)
     {
-        lineProfile.push_back(getGraySubpix(img, (float)down.x + mx * (float)k, (float)down.y + my * (float)k));
+        lineProfile.push_back(getGraySubpix(img, (float)circle2.x + mx * (float)k, (float)circle2.y + my * (float)k));
     }
     return(lineProfile);
+}
+
+float Histogramm::getAngle()
+{
+    float len = (float)sqrt(pow((float)up.x - (float)down.x, 2.0) + pow((float)up.y - (float)down.y, 2.0));
+    float mx = (up.x - down.x) / len;
+    float my = (up.y - down.y) / len;
+    float alpha = 180.f * atan2(my, mx) / 3.141f;
+    std::cout << mx << "; " << my << "(angle=" << 180.f * atan2(my, mx) / 3.141f << ")" << std::endl;
+    return (alpha);
 }
 
 float Histogramm::getGraySubpix(const cv::Mat& img, float x_in, float y_in)
@@ -185,7 +322,7 @@ cv::Vec3b Histogramm::getColorSubpix(const cv::Mat& img, cv::Point2f pt)
     return cv::Vec3b(b, g, r);
 }
 
-void Histogramm::drawProfile(std::vector<float> profile)
+void Histogramm::drawProfile(std::vector<float> profile, std::string imagename)
 {
     int p_Len = (int)profile.size();
     int p_w = 512; int p_h = 400;
@@ -205,26 +342,10 @@ void Histogramm::drawProfile(std::vector<float> profile)
             cv::Scalar(255, 0, 0), 2, 8, 0);
 
     }
-    cv::imshow("Profile", profileImage);
+    cv::imshow(imagename, profileImage);
 }
 
 float Histogramm::getGraySubpix(const cv::Mat& img, cv::Point2f pt)
 {
     return getGraySubpix(img, pt.x, pt.y);
-}
-
-void Histogramm::check_screw(bool, std::vector<float> lines)
-{
-    int i = 1;
-    double total;
-    for (i = 1; i < lines.size(); i++);
-    {
-        total =+ lines[i];
-        std::cout << lines[i] << "\n" << std::endl;
-    }
-    float median = total / lines.size();
-    std::cout << median << std::endl;
-
-
-
 }

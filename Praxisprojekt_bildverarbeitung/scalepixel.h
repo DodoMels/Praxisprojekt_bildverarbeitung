@@ -32,12 +32,15 @@ public:
 
     int getDistanceLidInPixel();
 
+    int getDistanceConectorInPixel();
+
 private:
     int RADIUS_OUTER_CIRCLE_MM = 40;
     int DISTANCE_SCREWS_DSUB_MM = 33;
     int DISTANCE_SCREWS_INOUT_MM = 45;
     int DISTANCE_SCREWS_DSUB_INOUT_MM = 18;
     int DISTANCE_LID_MM = 15;
+    int DISTANCE_CONECTOR_MM = 11;
 
     int RADIUS_OUTER_CIRCLE_PIXEL;
     int RADIUS_INNER_CIRCLE_PIXEL;
@@ -45,6 +48,7 @@ private:
     int DISTANCE_SCREWS_INOUT_PIXEL;
     int DISTANCE_SCREWS_DSUB_INOUT_PIXEL;
     int DISTANCE_LID_PIXEL = 15;
+    int DISTANCE_CONECTOR = 11;
 };
 
 #endif // SCALEPIXEL_H

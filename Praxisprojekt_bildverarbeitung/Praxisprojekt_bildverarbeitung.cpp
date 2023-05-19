@@ -23,7 +23,7 @@ die Kreise erkennen doppelt gemopelt
 using namespace cv;
 using namespace std;
 std::vector<cv::Vec3b> values;
-
+int device_counts = 0;
 
 // function read image
 Mat einlesen(string Dateiname)
@@ -257,15 +257,49 @@ int main(int argc, char* argv[])
     Mat filter;
     string search_directory = "../Praxisprojekt_bildverarbeitung/Device_net_mit_abdeckung.jpg";
 
+    Mat image;
+    cv::VideoCapture camera;
+    
+    /*
+    while (true) {
+        if (!camera.open(device_counts++)) {
+            break;
+        }
+    }
+    camera.release();
+    std::cout << "Anzahl Kameras = " << device_counts << std::endl;
+    */
+    namedWindow("Display window");
+
+    VideoCapture cap(1,cv::CAP_DSHOW);
+
+    if (!cap.isOpened()) {
+
+        cout << "cannot open camera";
+
+    }
+
+    while (true) {
+
+        cap >> image;
+
+        imshow("Display window", image);
+
+        waitKey(25);
+
+    }
+
+
+
     if (argc > 1)
     {
         search_directory = argv[1];
     }
     cout << "Press ENTER to continue." << endl;
-    img = einlesen(search_directory);
-    bild = einlesen(search_directory);
-    edges = detect_edges(img);
-    filter = highpassfilter(img);
+    //img = einlesen(search_directory);
+    //bild = einlesen(search_directory);
+    //edges = detect_edges(img);
+    //filter = highpassfilter(img);
     
     return 0;
 }
