@@ -256,12 +256,12 @@ std::vector<float> Histogramm::getLine(cv::Point circle1, cv::Point circle2)
 {
     std::vector<float> lineProfile;
     float len = (float)sqrt(pow((float)circle1.x - (float)circle2.x, 2.0) + pow((float)circle1.y - (float)circle2.y, 2.0));
-    float mx = (circle1.x - circle2.x) / len;
-    float my = (circle1.y - circle2.y) / len;
-    std::cout << mx << "; " << my << "(angle=" << 180.f * atan2(my, mx) / 3.141f << ")" << std::endl;
+    int mx = (circle1.x - circle2.x) / len;
+    int my = (circle1.y - circle2.y) / len;
+    std::cout << mx << "; " << my << " (angle=" << 180.f * atan2(my, mx) / 3.141f << ")" << std::endl;
     for (int k = 0; k < len; k++)
     {
-        lineProfile.push_back(getGraySubpix(img, (float)circle2.x + mx * (float)k, (float)circle2.y + my * (float)k));
+        lineProfile.push_back(getGraySubpix(img, static_cast<float>(circle2.x) + (mx * static_cast<float>(k)), static_cast<float>(circle2.y) + (my * static_cast<float>(k))));
     }
     return(lineProfile);
 }
@@ -293,6 +293,7 @@ float Histogramm::getGraySubpix(const cv::Mat& img, float x_in, float y_in)
     float intp = (float)(((1.f - a) * (float)img.at<uchar>(y0, x0) + a * (float)img.at<uchar>(y0, x1)) * (1.f - b)
         + ((1.f - a) * (float)img.at<uchar>(y1, x0) + a * (float)img.at<uchar>(y1, x1)) * b);
     // cout << (int)img.at<uchar>(y0, x0) << ", " << (int)img.at<uchar>(y0, x1) << ", " << (int)img.at<uchar>(y1, x0) << ", " << (int)img.at<uchar>(y1, x1) << ". (" << intp << ")" << std::endl;
+
     return(intp);
 }
 
@@ -344,6 +345,7 @@ void Histogramm::drawProfile(std::vector<float> profile, std::string imagename)
     }
     cv::imshow(imagename, profileImage);
 }
+
 
 float Histogramm::getGraySubpix(const cv::Mat& img, cv::Point2f pt)
 {
