@@ -20,7 +20,7 @@ int main()
     for (int i = 0; i < 1000; i++) {
         ImageHandler test(captureWebcam);
         test.evaluateSensor("Webcam");
-        cv::waitKey(1);
+        cv::waitKey(0);
     }
     cv::waitKey(0);
     return 0;
