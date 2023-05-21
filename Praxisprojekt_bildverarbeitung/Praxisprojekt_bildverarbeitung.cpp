@@ -96,7 +96,7 @@ Mat highpassfilter(Mat img)
     // detect cicles
     /*******************************************************************************************************************************/
     vector<Vec3f> circles;
-   HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, dst1.rows / static_cast<double>(8), 100, 36, 5, 30);
+   HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, dst1.rows / static_cast<double>(8), 100, 36, 5, 50);
     //HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, 50, 100, 30, 5, 35);
     //HoughCircles(dst1, circles, HOUGH_GRADIENT, 1, dst1.rows / static_cast<double>(18), 200, 36, 250, 400); // detect the biggest circle
 
@@ -260,35 +260,6 @@ int main(int argc, char* argv[])
     Mat image;
     cv::VideoCapture camera;
     
-    /*
-    while (true) {
-        if (!camera.open(device_counts++)) {
-            break;
-        }
-    }
-    camera.release();
-    std::cout << "Anzahl Kameras = " << device_counts << std::endl;
-    */
-    namedWindow("Display window");
-
-    VideoCapture cap(1,cv::CAP_DSHOW);
-
-    if (!cap.isOpened()) {
-
-        cout << "cannot open camera";
-
-    }
-
-    while (true) {
-
-        cap >> image;
-
-        imshow("Display window", image);
-
-        waitKey(25);
-
-    }
-
 
 
     if (argc > 1)
@@ -296,10 +267,10 @@ int main(int argc, char* argv[])
         search_directory = argv[1];
     }
     cout << "Press ENTER to continue." << endl;
-    //img = einlesen(search_directory);
+    img = einlesen(search_directory);
     //bild = einlesen(search_directory);
     //edges = detect_edges(img);
-    //filter = highpassfilter(img);
+    filter = highpassfilter(img);
     
     return 0;
 }

@@ -40,7 +40,7 @@ public:
     std::vector<float> getNewPoints(std::vector <int> firstCircle, std::vector<int> secondCircle, int distanceConectorToDsub);
 
     std::vector<float> getNewPointsNegativ(std::vector<int> firstCircle, std::vector<int> secondCircle, int distanceConectorToDsub);
-    int getMaxPeak(std::vector<float> lines);
+    int getMaxPeak(std::vector<float> lines,int pixelStart, int pixelEnd, int valueAroundMidle);
 
     float getGraySubpix(const cv::Mat& img, cv::Point2f pt);
    

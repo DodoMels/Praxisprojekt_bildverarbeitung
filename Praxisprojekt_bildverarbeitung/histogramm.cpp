@@ -41,6 +41,10 @@ bool Histogramm::calchist(Image image, std::vector<Circle> circles, int distance
     int counter_back = 0;
     int counter_front = 0;
     int findrightconector = 0;
+    float medianForBlueColor = 0;
+    int dsubStartPixelAroundMidle = 30;
+    int deviceNetStartPixelMidle = 15;
+
     int d = distanceBigScrews;
     bool screw{};
     cv::Point test;
@@ -95,8 +99,7 @@ bool Histogramm::calchist(Image image, std::vector<Circle> circles, int distance
     std::vector<float> profile = getLine(up,down);
     drawProfile(profile,"Screws");
 
-
-    if (int distance = getMaxPeak(conector) < 30)
+    if (int distance = getMaxPeak(conector,0,0,dsubStartPixelAroundMidle) < 10)
     {
         std::vector<float> newPoints = getNewPointsNegativ(first, second, distanceConector);
         parallel_up.x = newPoints.at(0);
@@ -106,9 +109,9 @@ bool Histogramm::calchist(Image image, std::vector<Circle> circles, int distance
         cv::circle(img, parallel_up, 2, cv::Scalar(0, 255, 0), -1, 8, 0);
         cv::circle(img, parallel_down, 2, cv::Scalar(0, 255, 0), -1, 8, 0);
         std::vector<float> conector = getLine(parallel_up, parallel_down);
-        drawProfile(conector, "conector");
+        drawProfile(conector, "conector otherside");
 
-        if (int distance =getMaxPeak(conector) < 30)
+        if (int distance =getMaxPeak(conector,0,0,dsubStartPixelAroundMidle) < 10)
         {
             cv::Point text_position(40, 40);//Declaring the text position//
             int font_size = 1;//Declaring the font size//
@@ -120,22 +123,26 @@ bool Histogramm::calchist(Image image, std::vector<Circle> circles, int distance
         }
         else 
         {
-            for (size_t i = 0; i < conector.size(); i++)
+            if (int distance = getMaxPeak(conector, 0, 0, deviceNetStartPixelMidle) < 10)
             {
-                if (conector.at(i) < 40)
-                {
-                    findrightconector += 1;
-                }
-                if (findrightconector > 35  && findrightconector < 50)
-                {
-                    cv::Point text_position(40, 40);//Declaring the text position//
-                    int font_size = 1;//Declaring the font size//
-                    cv::Scalar font_Color(0, 0, 0);//Declaring the color of the font//
-                    int font_weight = 2;//Declaring the font weight//
-                    cv::putText(img, "Devicenet", text_position, cv::FONT_HERSHEY_COMPLEX, font_size, font_Color, font_weight);//Putting the text in the matrix//
-                    cv::imshow("Image", img);//Showing the image//
-                    //cv::waitKey(0);//Wait for Keystroke//
-                }
+                cv::Point text_position(40, 40);//Declaring the text position//
+                int font_size = 1;//Declaring the font size//
+                cv::Scalar font_Color(0, 0, 0);//Declaring the color of the font//
+                int font_weight = 2;//Declaring the font weight//
+                cv::putText(img, "Devicenet", text_position, cv::FONT_HERSHEY_COMPLEX, font_size, font_Color, font_weight);//Putting the text in the matrix//
+                cv::imshow("Image", img);//Showing the image//
+                //cv::waitKey(0);//Wait for Keystroke//
+            }
+            else
+            {
+                cv::Point text_position(40, 40);//Declaring the text position//
+                int font_size = 1;//Declaring the font size//
+                cv::Scalar font_Color(0, 0, 0);//Declaring the color of the font//
+                int font_weight = 2;//Declaring the font weight//
+                cv::putText(img, "Ethercat", text_position, cv::FONT_HERSHEY_COMPLEX, font_size, font_Color, font_weight);//Putting the text in the matrix//
+                cv::imshow("Image", img);//Showing the image//
+                //cv::waitKey(0);//Wait for Keystroke//
+
             }
 
 
@@ -205,7 +212,8 @@ bool Histogramm::calchist(Image image, std::vector<Circle> circles, int distance
 
 std::vector<float> Histogramm::getNewPoints(std::vector<int> firstCircle, std::vector<int> secondCircle,int distanceConectorToDsub)
 {
-    float slope = (secondCircle.at(1) - firstCircle.at(1)) / (secondCircle.at(0) - firstCircle.at(0));
+
+    float slope = static_cast<float>(secondCircle.at(1) - firstCircle.at(1)) / static_cast<float>(secondCircle.at(0) - firstCircle.at(0));
     float perpendicular = -1 / slope;
 
     float x_new = firstCircle.at(0) + (distanceConectorToDsub / sqrt(1 + perpendicular * perpendicular));
@@ -218,7 +226,7 @@ std::vector<float> Histogramm::getNewPoints(std::vector<int> firstCircle, std::v
 }
 std::vector<float> Histogramm::getNewPointsNegativ(std::vector<int> firstCircle, std::vector<int> secondCircle, int distanceConectorToDsub)
 {
-    float slope = (secondCircle.at(1) - firstCircle.at(1)) / (secondCircle.at(0) - firstCircle.at(0));
+    float slope = static_cast<float>(secondCircle.at(1) - firstCircle.at(1)) / static_cast<float>(secondCircle.at(0) - firstCircle.at(0));
     float perpendicular = -1 / slope;
 
     float x_new = firstCircle.at(0) - (distanceConectorToDsub / sqrt(1 + perpendicular * perpendicular));
@@ -230,13 +238,14 @@ std::vector<float> Histogramm::getNewPointsNegativ(std::vector<int> firstCircle,
     return newpoints;
 }
 
-int Histogramm::getMaxPeak(std::vector<float> lines)
+
+int Histogramm::getMaxPeak(std::vector<float> lines, int pixelStart, int pixelEnd, int valueAroundMidle)
 {
     int midle = lines.size() / 2;
     int min = 100;
     int max = 0;
 
-    for (size_t i = midle - 10; i < midle + 10; i++)
+    for (size_t i = midle - valueAroundMidle; i < midle + valueAroundMidle; i++)
     {
         if (min > lines.at(i))
         {
@@ -256,8 +265,8 @@ std::vector<float> Histogramm::getLine(cv::Point circle1, cv::Point circle2)
 {
     std::vector<float> lineProfile;
     float len = (float)sqrt(pow((float)circle1.x - (float)circle2.x, 2.0) + pow((float)circle1.y - (float)circle2.y, 2.0));
-    int mx = (circle1.x - circle2.x) / len;
-    int my = (circle1.y - circle2.y) / len;
+    float mx = static_cast<float>(circle1.x - circle2.x) / static_cast<float>(len);
+    float my = static_cast<float>(circle1.y - circle2.y) / static_cast<float>(len);
     std::cout << mx << "; " << my << " (angle=" << 180.f * atan2(my, mx) / 3.141f << ")" << std::endl;
     for (int k = 0; k < len; k++)
     {
