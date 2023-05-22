@@ -127,6 +127,15 @@ bool Histogramm::calchist(Image image, std::vector<Circle> circles, int distance
             }
         }
     }
+    else
+    {
+        cv::Point text_position(40, 40);//Declaring the text position//
+        int font_size = 1;//Declaring the font size//
+        cv::Scalar font_Color(0, 0, 0);//Declaring the color of the font//
+        int font_weight = 2;//Declaring the font weight//
+        cv::putText(img, "Nicht erkannt bitte wert anpassen ", text_position, cv::FONT_HERSHEY_COMPLEX, font_size, font_Color, font_weight);//Putting the text in the matrix//
+        cv::imshow("Image", img);//Showing the image//
+    }
     
 // überprüfung ob Schrauben verhanden 
     int p_Len = (int)profile.size();
